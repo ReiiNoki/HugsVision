@@ -34,7 +34,7 @@ class VisionClassifierTrainer:
     cores         = 4,
     batch_size    = 8,
     lr            = 2e-5,
-    eval_metric   = "accuracy",
+    eval_metric   = "loss",
     fp16          = False,
     classification_report_digits = 4,
     checkpoint_path = None,
@@ -62,14 +62,14 @@ class VisionClassifierTrainer:
 
     # Processing device (CPU / GPU)
     self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    
+
     # Get the classifier collator
     self.collator = ImageClassificationCollator(self.feature_extractor)
 
     # Get the model output path
     self.output_path = self.__getOutputPath()
     self.logs_path   = self.output_path
-    
+
     # Open the logs file
     self.__openLogs()
 
@@ -87,12 +87,12 @@ class VisionClassifierTrainer:
         num_train_epochs            = self.max_epochs,
         metric_for_best_model       = self.eval_metric,
         logging_dir                 = self.logs_path,
-        evaluation_strategy         = "epoch",
+        eval_strategy               = "epoch",
         load_best_model_at_end      = False,
         overwrite_output_dir        = True,
         fp16=self.fp16,
     )
-    
+
     self.trainer = Trainer(
       self.model,
       self.training_args,
@@ -122,7 +122,7 @@ class VisionClassifierTrainer:
   """
   📜 Open the logs file
   """
-  def __openLogs(self):    
+  def __openLogs(self):
 
     # Open the logs file
     self.logs_file = open(self.logs_path + "/logs.txt", "a")
@@ -174,7 +174,7 @@ class VisionClassifierTrainer:
   🧪 Evaluate the performances of the system of the test sub-dataset
   """
   def evaluate(self):
-        
+
     all_preds  = []
     all_target = []
 
